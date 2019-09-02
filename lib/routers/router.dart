@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../pages/tabs/Tabs.dart';
 import '../pages/Search.dart';
+import '../pages/ProductList.dart';
 
 //配置路由
 final routes = {
   '/': (context) => Tabs(),
   '/search': (context) => SearchPage(),
+  '/productlist' :(context,{arguments}) => ProductList(arguments:arguments),
 };
 
 //固定写法

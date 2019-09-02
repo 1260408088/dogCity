@@ -10,7 +10,9 @@ class CategoryPage extends StatefulWidget {
   _CategoryPageState createState() => _CategoryPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> {
+class _CategoryPageState extends State<CategoryPage> with AutomaticKeepAliveClientMixin{
+  @override
+  bool get wantKeepAlive => true;
   int _selectIndex = 0;
   List _leftdata = [];
   List _rightdata = [];
@@ -113,21 +115,26 @@ class _CategoryPageState extends State<CategoryPage> {
                     String pic=this._rightdata[index].pic;
                     pic=Config.domain+pic.replaceAll('\\', '/');
                     return Container(
-                      child: Column(
-                        children: <Widget>[
+                      child: InkWell(
+                        onTap: ()=> Navigator.pushNamed(context, '/productlist',arguments: {
+                          "cid":this._rightdata[index].sId
+                        }),
+                        child: Column(
+                          children: <Widget>[
 
-                          AspectRatio(
-                            aspectRatio: 1/1,
-                            child: Image.network("${pic}",fit: BoxFit.cover),
-                          ),
+                            AspectRatio(
+                              aspectRatio: 1/1,
+                              child: Image.network("${pic}",fit: BoxFit.cover),
+                            ),
 
-                          Container(
-                            margin: EdgeInsets.only(top:5),
-                            height: ScreenAdaper.height(30),
-                            child: Text("${this._rightdata[index].title}",style: TextStyle(fontSize: 12),),
-                          )
-                        ],
-                      ),
+                            Container(
+                              margin: EdgeInsets.only(top:5),
+                              height: ScreenAdaper.height(30),
+                              child: Text("${this._rightdata[index].title}",style: TextStyle(fontSize: 12),),
+                            )
+                          ],
+                        ),
+                      )
                     );
                   })));
     } else {

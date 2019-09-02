@@ -8,14 +8,19 @@ class Tabs extends StatefulWidget{
   _TabsState createState()=> _TabsState();
 }
 class _TabsState extends State<Tabs>{
-
+  PageController _pageController;
+  @override
+  void initState() {
+    super.initState();
+    this._pageController=new PageController(initialPage:this._currentIndex );
+  }
   int _currentIndex=0;
 
-  List _pageList=[
+  List<Widget> _pageList=[
     HomePage(),
-    UserPage(),
     CategoryPage(),
-    CartPage()
+    CartPage(),
+    UserPage(),
   ];
 
   @override
@@ -25,12 +30,19 @@ class _TabsState extends State<Tabs>{
       appBar: AppBar(
         title: Text("狗东商城"),
       ),
-      body: this._pageList[this._currentIndex],
+      body: PageView(
+        controller: this._pageController,
+        children: this._pageList,
+        // onPageChanged: (){
+
+        // },
+      ),// this._pageList[this._currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex:this._currentIndex ,
         onTap: (index){
           setState(() {
             this._currentIndex=index;
+            this._pageController.jumpToPage(index);
           });
         },
         type:BottomNavigationBarType.fixed ,
@@ -57,4 +69,12 @@ class _TabsState extends State<Tabs>{
     );
   }
 
+
+  /*
+  *
+  * IndexedStack( // 切换页面状态的一种方法，但不适于精确的页面控制，在商城项目中不太适用（购物车模块需要更新的，但是，此种方法的加载是一次加载所有的页面）
+        index: this._currentIndex,
+        children: _pageList,
+      ),
+  */
 }
