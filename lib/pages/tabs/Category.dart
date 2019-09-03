@@ -117,7 +117,8 @@ class _CategoryPageState extends State<CategoryPage> with AutomaticKeepAliveClie
                     return Container(
                       child: InkWell(
                         onTap: ()=> Navigator.pushNamed(context, '/productlist',arguments: {
-                          "cid":this._rightdata[index].sId
+                          "cid":this._rightdata[index].sId,
+                          "title":this._rightdata[index].title
                         }),
                         child: Column(
                           children: <Widget>[

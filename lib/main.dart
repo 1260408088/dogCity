@@ -15,7 +15,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       // home: Tabs(),
         initialRoute: '/',
-        onGenerateRoute:onGenerateRoute
+        onGenerateRoute:onGenerateRoute,
+        theme: ThemeData(
+          primaryColor: Colors.white
+        ),
     );
   }
 }

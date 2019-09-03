@@ -18,7 +18,8 @@ class _ProductListState extends State<ProductList> {
 
   // 上拉分页控制器
   ScrollController _scrollController = ScrollController();
-
+  //配置search搜索框的值
+  var _initKeywordsController=new TextEditingController();
   // 分页
   int _page = 1;
 
@@ -45,7 +46,7 @@ class _ProductListState extends State<ProductList> {
       "title": "综合",
       "fileds": "all",
       "sort":
-      -1, //排序     升序：price_1     {price:1}        降序：price_-1   {price:-1}
+          -1, //排序     升序：price_1     {price:1}        降序：price_-1   {price:-1}
     },
     {"id": 2, "title": "销量", "fileds": 'salecount', "sort": -1},
     {"id": 3, "title": "价格", "fileds": 'price', "sort": -1},
@@ -54,10 +55,19 @@ class _ProductListState extends State<ProductList> {
 
   //二级导航选中判断
   int _selectHeaderId = 1;
+  var _cid;
+  // 搜索关键词
+  var _keywords;
+  // 点击分类时的标题
+  var _title;
 
   @override
   void initState() {
     super.initState();
+    this._cid = widget.arguments["cid"];
+    this._title = widget.arguments["title"];
+    this._keywords = widget.arguments["keywords"];
+    this._initKeywordsController.text=this._keywords;
     _getProductListData();
     //监听滚动条滚动事件
     _scrollController.addListener(() {
@@ -77,9 +87,14 @@ class _ProductListState extends State<ProductList> {
     setState(() {
       this.flag = false;
     });
-    var api =
-        '${Config.domain}api/plist?cid=${widget.arguments["cid"]}&page=${this
-        ._page}&sort=${this._sort}&pageSize=${this._pageSize}';
+    var api;
+    if (this._keywords == null) {
+      api =
+          '${Config.domain}api/plist?cid=${this._cid}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}';
+    } else {
+      api =
+          '${Config.domain}api/plist?search=${this._keywords}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}';
+    }
     var result = await Dio().get(api);
 
     var productList = new ProductModel.fromJson(result.data);
@@ -153,13 +168,13 @@ class _ProductListState extends State<ProductList> {
                                       height: ScreenAdaper.height(36),
                                       margin: EdgeInsets.only(right: 10),
                                       padding:
-                                      EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                          EdgeInsets.fromLTRB(10, 0, 10, 0),
 
                                       //注意 如果Container里面加上decoration属性，这个时候color属性必须得放在BoxDecoration
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
                                         color:
-                                        Color.fromRGBO(230, 230, 230, 0.9),
+                                            Color.fromRGBO(230, 230, 230, 0.9),
                                       ),
 
                                       child: Text("4g"),
@@ -168,11 +183,11 @@ class _ProductListState extends State<ProductList> {
                                       height: ScreenAdaper.height(36),
                                       margin: EdgeInsets.only(right: 10),
                                       padding:
-                                      EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                          EdgeInsets.fromLTRB(10, 0, 10, 0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
                                         color:
-                                        Color.fromRGBO(230, 230, 230, 0.9),
+                                            Color.fromRGBO(230, 230, 230, 0.9),
                                       ),
                                       child: Text("126"),
                                     ),
@@ -197,6 +212,45 @@ class _ProductListState extends State<ProductList> {
     }
   }
 
+  _subHeaderChange(id) {
+    if (id == 4) {
+      _scaffoldKey.currentState.openEndDrawer();
+      setState(() {
+        this._selectHeaderId = id;
+      });
+    } else {
+      setState(() {
+        this._selectHeaderId = id;
+        this._sort =
+            "${this._subHeaderList[id - 1]["fileds"]}_${this._subHeaderList[id - 1]["sort"]}";
+        print("this._sort:" + this._sort);
+        // 重置分页
+        this._page = 1;
+        // 重置数据
+        this._productList = [];
+        // 改变sort排序
+        this._subHeaderList[id - 1]['sort'] =
+            this._subHeaderList[id - 1]['sort'] * -1;
+        // 回到顶部
+        _scrollController.jumpTo(0);
+        // 重置_hasMore
+        this._hasMore = true;
+        // 重新请求
+        this._getProductListData();
+      });
+    }
+  }
+
+  Widget _showIcon(id){
+    if(id==2||id==3){
+      if(this._subHeaderList[id-1]["sort"]==1){
+        return Icon(Icons.arrow_drop_down);
+      }
+      return Icon(Icons.arrow_drop_up);
+    }
+    return Text("");
+  }
+
   //筛选导航
   Widget _subHeaderWidget() {
     return Positioned(
@@ -218,52 +272,81 @@ class _ProductListState extends State<ProductList> {
                 child: InkWell(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                        0, ScreenAdaper.height(16), 0,
-                        ScreenAdaper.height(16)),
-                    child: Text(
-                      "${value["title"]}",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: (this._selectHeaderId == value["id"])
-                          ? Colors.red
-                          : Colors.black54),
-                    ),
+                        0, ScreenAdaper.height(16), 0, ScreenAdaper.height(16)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                     children: <Widget>[
+                       Text(
+                         "${value["title"]}",
+                         textAlign: TextAlign.center,
+                         style: TextStyle(
+                             color: (this._selectHeaderId == value["id"])
+                                 ? Colors.red
+                                 : Colors.black54),
+                       ),
+                      _showIcon(value["id"]),
+                     ],
+                    )
                   ),
                   onTap: () {
-                    setState(() {
-                      this._selectHeaderId=value["id"];
-                    });
-
+                    this._subHeaderChange(value["id"]);
                   },
-                )
-            );
+                ));
           }).toList(),
-//            Expanded(
-//              flex: 1,
-//              child: InkWell(
-//                child: Padding(
-//                  padding: EdgeInsets.fromLTRB(
-//                      0, ScreenAdaper.height(16), 0, ScreenAdaper.height(16)),
-//                  child: Text(
-//                    "综合",
-//                    textAlign: TextAlign.center,
-//                    style: TextStyle(color: Colors.red),
-//                  ),
-//                ),
-//                onTap: () {},
-//              ),
-//            ),
         ),
       ),
     );
+  }
+
+
+  _searchBar(){
+    if(this._keywords==null){
+        return AppBar(
+          title: Text(this._title),
+        );
+    }else{
+      return AppBar(
+        title: Container(
+          child: TextField(
+            controller: this._initKeywordsController,
+            autofocus: true,
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none)),
+            onChanged: (value) {
+              this._keywords = value;
+            },
+          ),
+          height: ScreenAdaper.height(68),
+          decoration: BoxDecoration(
+              color: Color.fromRGBO(233, 233, 233, 0.8),
+              borderRadius: BorderRadius.circular(30)),
+        ),
+        actions: <Widget>[
+          InkWell(
+            child: Container(
+              height: ScreenAdaper.height(68),
+              width: ScreenAdaper.width(80),
+              child: Row(
+                children: <Widget>[Text("搜索")],
+              ),
+            ),
+            onTap: () {
+              _subHeaderChange(1);
+            },
+          )
+        ],
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     ScreenAdaper.init(context);
     return new Scaffold(
-        appBar: AppBar(
-          title: Text("商品列表"),
-        ),
+        key: _scaffoldKey,
+        appBar: _searchBar(),
         endDrawer: Drawer(
           // 右侧边栏
           child: Container(
