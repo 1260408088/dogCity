@@ -4,6 +4,7 @@ import '../config/Config.dart';
 import '../model/ProductModel.dart';
 import 'package:dio/dio.dart';
 import '../widget/LoadingWidget.dart';
+import '../service/SearchService.dart';
 
 class ProductList extends StatefulWidget {
   Map arguments;
@@ -333,6 +334,9 @@ class _ProductListState extends State<ProductList> {
               ),
             ),
             onTap: () {
+              if(this._keywords!=null){
+                SearchServices.setHistoryDate(this._keywords);
+              }
               _subHeaderChange(1);
             },
           )

@@ -19,37 +19,45 @@ import 'dart:convert';
 import 'Storage.dart';
 
 class SearchServices {
-  static setHistoryDate(keywords) async{
+  static setHistoryDate(keywords) async {
     // 这个方法的问题，获取为空会报错，所以要try catch一下
-    try{
+    try {
       List searchListData = json.decode(await Storage.getString('searchList'));
-      var hasDate=searchListData.any((v){ // 这是一个方法有返回值的，直接返回给了hasData
-        return v==keywords;
+      var hasDate = searchListData.any((v) {
+        // 这是一个方法有返回值的，直接返回给了hasData
+        return v == keywords;
       });
-      if(!hasDate){ // 存在就放进去
+      if (!hasDate) {
+        // 存在就放进去
         searchListData.add(keywords);
-        await Storage.setString('search', json.encode(searchListData));
+        await Storage.setString('searchList', json.encode(searchListData));
       }
-    }catch(e){ //
+    } catch (e) {
+      //
       List tempList = new List();
       tempList.add(keywords);
       await Storage.setString('searchList', json.encode(tempList));
     }
   }
 
-  static getHistoryList() async{
-    try{
+  static getHistoryList() async {
+    try {
       List searchListData = json.decode(await Storage.getString('searchList'));
-      return searchListData;
-    }catch(e){
-      return[];
+      if (searchListData != null) {
+        return searchListData;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
     }
   }
-  static clearHistoryList() async{
+
+  static clearHistoryList() async {
     await Storage.remove('searchList');
   }
 
-  static removeHistoryData(keywords) async{
+  static removeHistoryData(keywords) async {
     List searchListData = json.decode(await Storage.getString('searchList'));
     searchListData.remove(keywords);
     await Storage.setString('searchList', json.encode(searchListData));

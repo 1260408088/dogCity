@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../service/ScreenAdaper.dart';
+import '../service/SearchService.dart';
 
 class SearchPage extends StatefulWidget {
   SearchPage({Key key}) : super(key: key);
@@ -9,6 +10,13 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   var _keywords;
+  var _historyList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    this._getHistoryData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +48,11 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/productlist',
-                    arguments: {"keywords": this._keywords});
+                if(this._keywords!=null){
+                  SearchServices.setHistoryDate(this._keywords);
+                  Navigator.pushReplacementNamed(context, '/productlist',
+                      arguments: {"keywords": this._keywords});
+                }
               },
             )
           ],
@@ -100,23 +111,26 @@ class _SearchPageState extends State<SearchPage> {
               ),
               Divider(height: 6),
               Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text("女装"),
-                  ),
-                  Divider(height: 6),
-                  ListTile(
-                    title: Text("女装"),
-                  ),
-                  Divider(height: 6),
-                  ListTile(
-                    title: Text("女装"),
-                  )
-                ],
+                children: this._historyList.map((value) {
+                  return new Column(
+                    children: <Widget>[
+                      ListTile(
+                        title: Text("${value}"),
+                        onLongPress: () {
+                          this._showAlertDialog("${value}");
+                        },
+                      ),
+                      Divider(),
+                    ],
+                  );
+                }).toList(),
               ),
               SizedBox(height: 30),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  SearchServices.clearHistoryList();
+                  this._getHistoryData();
+                },
                 child: Container(
                   width: ScreenAdaper.width(400),
                   height: ScreenAdaper.height(64),
@@ -132,5 +146,43 @@ class _SearchPageState extends State<SearchPage> {
             ],
           ),
         ));
+  }
+
+  // 弹出框
+  _showAlertDialog(keyworld) async {
+    var result = await showDialog(
+        barrierDismissible: false, //表示点击灰色背景的时候是否消失弹出框
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("提示信息!"),
+            content: Text("您确定要删除吗?"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("取消"),
+                onPressed: () {
+                  print("取消");
+                  Navigator.pop(context, 'Cancle');
+                },
+              ),
+              FlatButton(
+                child: Text("确定"),
+                onPressed: () async {
+                  //注意异步
+                  await SearchServices.removeHistoryData(keyworld);
+                  this._getHistoryData();
+                  Navigator.pop(context, "Ok");
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  _getHistoryData() async {
+    var _historyListData = await SearchServices.getHistoryList();
+    setState(() {
+      this._historyList = _historyListData;
+    });
   }
 }
