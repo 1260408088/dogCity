@@ -10,7 +10,8 @@ class CategoryPage extends StatefulWidget {
   _CategoryPageState createState() => _CategoryPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> with AutomaticKeepAliveClientMixin{
+class _CategoryPageState extends State<CategoryPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
   int _selectIndex = 0;
@@ -63,7 +64,7 @@ class _CategoryPageState extends State<CategoryPage> with AutomaticKeepAliveClie
                   InkWell(
                     onTap: () {
                       setState(() {
-                        _selectIndex= index;
+                        _selectIndex = index;
                         this._getRightCateData(this._leftdata[index].sId);
                       });
                     },
@@ -93,6 +94,7 @@ class _CategoryPageState extends State<CategoryPage> with AutomaticKeepAliveClie
       );
     }
   }
+
   // 右边
   _rightWidget(rightItemWidth, rightItemHeight) {
     if (this._rightdata.length > 0) {
@@ -112,31 +114,32 @@ class _CategoryPageState extends State<CategoryPage> with AutomaticKeepAliveClie
                   itemCount: this._rightdata.length,
                   itemBuilder: (context, index) {
                     //处理图片
-                    String pic=this._rightdata[index].pic;
-                    pic=Config.domain+pic.replaceAll('\\', '/');
+                    String pic = this._rightdata[index].pic;
+                    pic = Config.domain + pic.replaceAll('\\', '/');
                     return Container(
-                      child: InkWell(
-                        onTap: ()=> Navigator.pushNamed(context, '/productlist',arguments: {
-                          "cid":this._rightdata[index].sId,
-                          "title":this._rightdata[index].title
-                        }),
-                        child: Column(
-                          children: <Widget>[
-
-                            AspectRatio(
-                              aspectRatio: 1/1,
-                              child: Image.network("${pic}",fit: BoxFit.cover),
+                        child: InkWell(
+                      onTap: () => Navigator.pushNamed(context, '/productlist',
+                          arguments: {
+                            "cid": this._rightdata[index].sId,
+                            "title": this._rightdata[index].title
+                          }),
+                      child: Column(
+                        children: <Widget>[
+                          AspectRatio(
+                            aspectRatio: 1 / 1,
+                            child: Image.network("${pic}", fit: BoxFit.cover),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(top: 5),
+                            height: ScreenAdaper.height(30),
+                            child: Text(
+                              "${this._rightdata[index].title}",
+                              style: TextStyle(fontSize: 12),
                             ),
-
-                            Container(
-                              margin: EdgeInsets.only(top:5),
-                              height: ScreenAdaper.height(30),
-                              child: Text("${this._rightdata[index].title}",style: TextStyle(fontSize: 12),),
-                            )
-                          ],
-                        ),
-                      )
-                    );
+                          )
+                        ],
+                      ),
+                    ));
                   })));
     } else {
       return Expanded(
@@ -161,11 +164,46 @@ class _CategoryPageState extends State<CategoryPage> with AutomaticKeepAliveClie
     rightItemWidth = ScreenAdaper.width(rightItemWidth);
     //获取计算后的高度
     var rightItemHeight = rightItemWidth + ScreenAdaper.height(28);
-    return new Row(
-      children: <Widget>[
-        _leftWidget(leftWidth),
-        _rightWidget(rightItemWidth, rightItemHeight)
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            icon:
+                Icon(Icons.center_focus_weak, size: 28, color: Colors.black87),
+            onPressed: null),
+        title: InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, '/search');
+            },
+            child: Container(
+              padding: EdgeInsets.only(left: 10),
+              height: ScreenAdaper.height(68),
+              decoration: BoxDecoration(
+                  color: Color.fromRGBO(233, 233, 233, 0.8),
+                  borderRadius: BorderRadius.circular(30)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.search),
+                  Text("笔记本", style: TextStyle(fontSize: ScreenAdaper.size(28)))
+                ],
+              ),
+            )),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(
+                Icons.message,
+                size: 28,
+                color: Colors.black87,
+              ),
+              onPressed: null)
+        ],
+      ),
+      body: new Row(
+        children: <Widget>[
+          _leftWidget(leftWidth),
+          _rightWidget(rightItemWidth, rightItemHeight)
+        ],
+      ),
     );
   }
 }

@@ -12,7 +12,11 @@ class LoadingWidget extends StatelessWidget {
           children: <Widget>[
             CircularProgressIndicator(
               strokeWidth: 1.0,
-            ),Text("加载中...",style: TextStyle(fontSize: 16.0),),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left:5),
+              child: Text("加载中...",style: TextStyle(fontSize: 16.0),),
+            ),
           ],
         ),
       )
