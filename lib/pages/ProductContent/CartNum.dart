@@ -1,30 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../provider/Cart.dart';
+import 'package:flutter/widgets.dart';
 import '../../service/ScreenAdaper.dart';
+import '../../model/ProductContentModel.dart';
 
 class CartNum extends StatefulWidget {
-  Map _itemData;
+  ProductContentitem _productContent;
 
-  CartNum(this._itemData, {Key key}) : super(key: key);
+  CartNum(this._productContent,{Key key}) : super(key: key);
 
   _CartNumState createState() => _CartNumState();
 }
 
 class _CartNumState extends State<CartNum> {
-  Map _itemData;
-  var cartProvider;
-
+  ProductContentitem _productContent;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    this._itemData = widget._itemData;
+    this._productContent=widget._productContent;
   }
 
   @override
   Widget build(BuildContext context) {
-    this.cartProvider = Provider.of<Cart>(context);
     return Container(
       width: ScreenAdaper.width(164),
       decoration:
@@ -44,12 +41,11 @@ class _CartNumState extends State<CartNum> {
   Widget _leftBtn() {
     return InkWell(
       onTap: () {
-        setState(() {
-          if (this._itemData["count"] > 1) {
-            this._itemData["count"]--;
-            this.cartProvider.itemCountChange();
-          }
-        });
+        if( this._productContent.count>1){
+          setState(() {
+            this._productContent.count=this._productContent.count-1;
+          });
+        }
       },
       child: Container(
         alignment: Alignment.center,
@@ -63,11 +59,11 @@ class _CartNumState extends State<CartNum> {
   //右侧按钮
   Widget _rightBtn() {
     return InkWell(
-      onTap: () {
-        //setState(() {  // 加完provider的的通知以后，可以不适用setState来改变数值
-          this._itemData["count"]++;
-          this.cartProvider.itemCountChange();
-        //});
+      onTap: (){
+
+        setState(() {
+          this._productContent.count=this._productContent.count+1;
+        });
       },
       child: Container(
         alignment: Alignment.center,
@@ -89,7 +85,7 @@ class _CartNumState extends State<CartNum> {
             right: BorderSide(width: 1, color: Colors.black12),
           )),
       height: ScreenAdaper.height(45),
-      child: Text("${_itemData["count"]}"),
+      child: Text("${this._productContent.count}"),
     );
   }
 }

@@ -4,6 +4,10 @@ import '../../widget/JdButton.dart';
 import '../../model/ProductContentModel.dart';
 import '../../config/Config.dart';
 import '../../service/EventBus.dart';
+import './CartNum.dart';
+import '../../service/CartServices.dart';
+import 'package:provider/provider.dart';
+import '../../provider/Cart.dart';
 class ProductContentFirst extends StatefulWidget {
   final List _productContentList;
   ProductContentFirst(this._productContentList,{Key key}) : super(key: key);
@@ -13,10 +17,11 @@ class ProductContentFirst extends StatefulWidget {
 class _ProductContentFirstState extends State<ProductContentFirst> with AutomaticKeepAliveClientMixin{
   bool get wantKeepAlive =>true;
   ProductContentitem _productContent;
+  var cartProvider;
   // 广播监听
   var actionEventBus;
   List _attr = []; // 商品的属性
-  String _selectedValue;
+  String _selectedValue; // 商品的选中属性
   @override
   void initState() {
     super.initState();
@@ -30,7 +35,7 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
     //   print(event);
     //   this._attrBottomSheet();
     // });
-
+    // 监听底部的加入购物车按钮
     this.actionEventBus=eventBus.on<ProductContentEvent>().listen((str) {
       print(str);
       this._attrBottomSheet();
@@ -90,6 +95,8 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
     }
     setState(() {
       this._selectedValue = tempArr.join(',');
+      // 将商品的选中属性，赋值，便于传递
+      this._productContent.selectedAttr=this._selectedValue;
     });
     print(this._selectedValue);
   }
@@ -142,7 +149,7 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
     return attrList;
   }
 
-
+  // 加入购物车的弹窗
   _attrBottomSheet() {
     showModalBottomSheet(
         context: context,
@@ -162,6 +169,22 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: _getAttrWidget(setBottomState),
+                          ),
+                          Divider(),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(10,10,0,0),
+                            height: ScreenAdaper.height(80),
+                            child:  Row(
+                              children: <Widget>[
+                                // TODO
+                                Text("数量:",
+                                    style: TextStyle(fontWeight: FontWeight.bold)),
+                                Container(
+                                  padding: EdgeInsets.only(left:10),
+                                  child: CartNum(this._productContent),
+                                )
+                              ],
+                            ),
                           )
                         ],
                       ),
@@ -180,6 +203,9 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
                                     color: Color.fromRGBO(253, 1, 0, 0.9),
                                     text: "加入购物车",
                                     cb: () {
+                                      CartServices.addCart(this._productContent);
+                                      Navigator.pop(context);
+                                      this.cartProvider.updateCartList();
                                       print('加入购物车');
                                     },
                                   ),
@@ -206,6 +232,7 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
 
   @override
   Widget build(BuildContext context) {
+    this.cartProvider = Provider.of<Cart>(context);
     //处理图片
     String pic = Config.domain + this._productContent.pic;
     pic = pic.replaceAll('\\', '/');
@@ -276,7 +303,7 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
                     _attrBottomSheet();
                   },
                   child: Row(
-                    children: <Widget>[
+                    children: <Widget>[ // TODO
                       Text("已选:",
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text("115，黑色，XL， 1件")
