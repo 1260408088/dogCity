@@ -8,6 +8,7 @@ import './CartNum.dart';
 import '../../service/CartServices.dart';
 import 'package:provider/provider.dart';
 import '../../provider/Cart.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 class ProductContentFirst extends StatefulWidget {
   final List _productContentList;
   ProductContentFirst(this._productContentList,{Key key}) : super(key: key);
@@ -111,7 +112,9 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
             _changeAttr(attrItem.cate, item["title"], setBottomState);
           },
           child: Chip(
-            label: Text("${item["title"]}"),
+            label: Text("${item["title"]}",style: TextStyle(
+              color: item["checked"] ? Colors.white : Colors.black38
+            ),),
             padding: EdgeInsets.all(10),
             backgroundColor: item["checked"] ? Colors.red : Colors.black26,
           ),
@@ -202,10 +205,13 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
                                   child: JdButton(
                                     color: Color.fromRGBO(253, 1, 0, 0.9),
                                     text: "加入购物车",
-                                    cb: () {
-                                      CartServices.addCart(this._productContent);
+                                    cb: () async{
+                                      await CartServices.addCart(this._productContent);
                                       Navigator.pop(context);
                                       this.cartProvider.updateCartList();
+                                      Fluttertoast.showToast(
+                                        msg: '加入购物车成功',
+                                        toastLength: Toast.LENGTH_SHORT,gravity: ToastGravity.CENTER,);
                                       print('加入购物车');
                                     },
                                   ),
@@ -256,7 +262,7 @@ class _ProductContentFirstState extends State<ProductContentFirst> with Automati
                     ))),
             Container(
               padding: EdgeInsets.only(top: 10),
-              child:this._productContent.subTitle==null?Text(
+              child:this._productContent.subTitle!=null?Text(
                   "${this._productContent.subTitle}",
                   style: TextStyle(
                       color: Colors.black87, fontSize: ScreenAdaper.size(32))):Text(""),

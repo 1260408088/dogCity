@@ -5,6 +5,8 @@ import '../../provider/Counter.dart';
 import '../../service/ScreenAdaper.dart';
 import '../Cart/CartItem.dart';
 import '../Cart/CartNum.dart';
+import '../../service/Storage.dart';
+import 'dart:convert';
 
 class CartPage extends StatefulWidget {
   CartPage({Key key}) : super(key: key);
@@ -13,6 +15,8 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  bool _isEdit=false;
+  List product;
   @override
   void initState() {
     // TODO: implement initState
@@ -20,15 +24,27 @@ class _CartPageState extends State<CartPage> {
     print("cart");
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     //var counterProvider = Provider.of<Counter>(context);
 
     var cartProvider = Provider.of<Cart>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text("购物车"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.launch),
+            onPressed: (){
+              setState(() {
+                this._isEdit=!this._isEdit;
+                cartProvider.notCheckAll();
+              });
+            },
+          )
+        ],
       ),
       body: cartProvider.cartList.length > 0
           ? Stack(
@@ -73,11 +89,20 @@ class _CartPageState extends State<CartPage> {
                                   },
                                 ),
                               ),
-                              Text("全选")
+                              Text("全选"),
+                              SizedBox(width: 20),
+                              this._isEdit==false?Text("合计:"):Text(""),
+                              Container(
+                                padding: EdgeInsets.only(left:5),
+                                child: this._isEdit==false?Text("${cartProvider.allPrice}",style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.red
+                                )):Text(""),
+                              )
                             ],
                           ),
                         ),
-                        Align(
+                        this._isEdit==false?Align(
                             alignment: Alignment.centerRight,
                             child: Container(
                               padding: EdgeInsets.only(right: 2),
@@ -87,7 +112,17 @@ class _CartPageState extends State<CartPage> {
                                 color: Colors.red,
                                 onPressed: () {},
                               ),
-                            ))
+                            )):
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: RaisedButton(
+                            child: Text("删除",
+                                style: TextStyle(color: Colors.white)),
+                            color: Colors.red,
+                            onPressed: () {
+                              cartProvider.removeItem();
+                            },
+                          ),)
                       ],
                     ),
                   ),

@@ -20,11 +20,13 @@ class _CartItemState extends State<CartItem> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    this._itemData = widget._itemData;
   }
 
   @override
   Widget build(BuildContext context) {
+    // 属性赋值，放在此处，应对购物车条目被删除后，数据更新出现的混乱(渲染页面的时候，再次加载数据)
+    this._itemData = widget._itemData;
+
     var cartProvider=Provider.of<Cart>(context);
 //    var countProvider=Provider.of<Counter>(context);
     return Container(
@@ -59,9 +61,10 @@ class _CartItemState extends State<CartItem> {
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text("${_itemData["title"]}", maxLines: 2),
-                    Text("${_itemData["selectedAttr"]}", maxLines: 2),
+                    Text("${_itemData["title"]}", maxLines: 1),
+                    Text("${_itemData["selectedAttr"]}", maxLines: 1),
                     Stack(
                       children: <Widget>[
                         Align(

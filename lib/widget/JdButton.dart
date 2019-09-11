@@ -4,9 +4,9 @@ class JdButton extends StatelessWidget {
   final Color color;
   final String text;
   final Object cb;
-
+  final double height;
   JdButton(
-      {Key key, this.color = Colors.black, this.text = "按钮", this.cb = null})
+      {Key key, this.color = Colors.black, this.text = "按钮", this.height=68, this.cb = null})
       : super(key: key);
 
   @override

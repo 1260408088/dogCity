@@ -9,6 +9,10 @@ import '../widget/JdButton.dart';
 import '../model/ProductContentModel.dart';
 import '../service/EventBus.dart';
 import '../widget/LoadingWidget.dart';
+import '../service/CartServices.dart';
+import '../provider/Cart.dart';
+import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 class ProductContent extends StatefulWidget {
   Map arguments;
 
@@ -19,11 +23,13 @@ class ProductContent extends StatefulWidget {
 
 class _ProductContentState extends State<ProductContent> {
   List _productContentList=[];
+  var cartProvider;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     this._getContentData();
+
   }
 
   _getContentData() async {
@@ -37,6 +43,7 @@ class _ProductContentState extends State<ProductContent> {
 
   @override
   Widget build(BuildContext context) {
+    this.cartProvider = Provider.of<Cart>(context);
     return DefaultTabController(
         length: 3,
         child: Scaffold(
@@ -113,27 +120,37 @@ class _ProductContentState extends State<ProductContent> {
                                 EdgeInsets.only(top: ScreenAdaper.height(10)),
                             width: 100,
                             height: ScreenAdaper.height(88),
-                            child: Column(
-                              children: <Widget>[
-                                Icon(Icons.shopping_cart),
-                                Text(
-                                  "购物车",
-                                  style: TextStyle(fontSize: 10),
-                                )
-                              ],
-                            ),
+                            child: InkWell(
+                              onTap: (){
+                                Navigator.pushNamed(context, '/cart');
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Icon(Icons.shopping_cart),
+                                  Text(
+                                    "购物车",
+                                    style: TextStyle(fontSize: 10),
+                                  )
+                                ],
+                              ),
+                            )
                           ),
                           Expanded(
                               flex: 1,
                               child: JdButton(
                                 color: Color.fromRGBO(253, 1, 0, 0.9),
                                 text: "加入购物车",
-                                cb: () {
+                                cb: () async{
                                   // 发送广播
                                   if(this._productContentList[0].attr.length>0){
                                     eventBus.fire(new ProductContentEvent("加入购物车"));
                                   }else{
-                                    print("加入购物车");
+                                    await CartServices.addCart(
+                                        this._productContentList[0]);
+                                    this.cartProvider.updateCartList();
+                                    Fluttertoast.showToast(
+                                      msg: '加入购物车成功',
+                                      toastLength: Toast.LENGTH_SHORT,gravity: ToastGravity.CENTER,);
                                   }
                                 },
                               )),

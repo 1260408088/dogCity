@@ -3,6 +3,11 @@ import '../pages/tabs/Tabs.dart';
 import '../pages/Search.dart';
 import '../pages/ProductList.dart';
 import '../pages/ProductContemt.dart';
+import '../pages/tabs/Cart.dart';
+import '../pages/Login.dart';
+import '../pages/RegisterFirstPage.dart';
+import '../pages/RegisterSecondPage.dart';
+import '../pages/RegisterThird.dart';
 //配置路由
 final routes = {
   '/': (context) => Tabs(),
@@ -10,6 +15,11 @@ final routes = {
   '/productlist' :(context,{arguments}) => ProductList(arguments:arguments),
   '/search': (context) => SearchPage(),
   '/productContent': (context,{arguments}) => ProductContent(arguments:arguments),
+  '/cart': (context) => CartPage(),
+  '/login': (context) => LoginPage(),
+  '/registerFirst':(context) => RegisterFirstPage(),
+  '/registerSecond':(context,{arguments})=> RegisterSecondPage(arguments: arguments),
+  '/registerThird':(context,{arguments})=> RegisterThirdPage(arguments: arguments),
 };
 
 //固定写法
