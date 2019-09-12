@@ -4,6 +4,7 @@ import '../../provider/Counter.dart';
 import '../../service/ScreenAdaper.dart';
 import '../../service/UserServices.dart';
 import '../../widget/JdButton.dart';
+import '../../service/EventBus.dart';
 class UserPage extends StatefulWidget {
   UserPage({Key key}) : super(key: key);
 
@@ -20,13 +21,24 @@ class _UserPageState extends State<UserPage> {
     // TODO: implement initState
     super.initState();
     this._getUserinfo();
+    //监听登录页面改变的事件 (这是一个监听器，打开监听而已)，弹出登陆页面与页面销毁后，不会重新执行init的
+    eventBus.on<UserEvent>().listen((event) {
+      print(event.str);
+      this._getUserinfo();
+    });
+  }
+
+  @override
+  void dispose() {
+    print("++++++++++++++++++++++++++++");
+    super.dispose();
   }
 
   _getUserinfo() async{
-
+    print("------------------------------------------------------------------");
     var isLogin=await UserServices.getUserLoginState();
     var userInfo=await UserServices.getUserInfo();
-
+    print("==================================================================");
     setState(() {
       this.userInfo=userInfo;
       this.isLogin=isLogin;

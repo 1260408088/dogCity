@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:gou_dong_store/provider/CheckOut.dart';
 import '../../provider/Cart.dart';
-import '../../provider/Counter.dart';
 import '../../service/ScreenAdaper.dart';
+import '../../service/CartServices.dart';
+import '../../service/UserServices.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../Cart/CartItem.dart';
-import '../Cart/CartNum.dart';
-import '../../service/Storage.dart';
 import 'dart:convert';
 
 class CartPage extends StatefulWidget {
@@ -16,7 +17,7 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   bool _isEdit=false;
-  List product;
+  var checkOutProvider;
   @override
   void initState() {
     // TODO: implement initState
@@ -24,13 +25,42 @@ class _CartPageState extends State<CartPage> {
     print("cart");
   }
 
+  doCheckOut() async{
+    //1、获取购物车选中的数据
+    List checkOutData = await CartServices.getCheckOutData();
+    print("----------------------------------${checkOutData}");
+    //2、保存购物车选中的数据
+    //this.checkOutProvider.changeCheckOutListData(checkOutData);
+    //3、购物车有没有选中的数据
+    if (checkOutData.length > 0) {
+      //4、判断用户有没有登录
+      var loginState = await UserServices.getUserLoginState();
+      if (loginState) {
+        Navigator.pushNamed(context, '/Text',arguments:{"flag":1234});
+        // Navigator.pushNamed(context, '/Text');
 
+      } else {
+        Fluttertoast.showToast(
+          msg: '您还没有登录，请登录以后再去结算',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
+        Navigator.pushNamed(context, '/login');
+      }
+    } else {
+      Fluttertoast.showToast(
+        msg: '购物车没有选中的数据',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     //var counterProvider = Provider.of<Counter>(context);
-
     var cartProvider = Provider.of<Cart>(context);
+    //checkOutProvider = Provider.of<CheckOut>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("购物车"),
@@ -110,7 +140,7 @@ class _CartPageState extends State<CartPage> {
                                 child: Text("结算",
                                     style: TextStyle(color: Colors.white)),
                                 color: Colors.red,
-                                onPressed: () {},
+                                onPressed:doCheckOut,
                               ),
                             )):
                         Align(

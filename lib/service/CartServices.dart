@@ -3,6 +3,7 @@ import 'Storage.dart';
 import '../config/Config.dart';
 
 class CartServices {
+
   /*  购物车的操作逻辑
       1、获取本地存储的cartList数据
       2、判断cartList是否有数据
@@ -71,7 +72,7 @@ class CartServices {
       await Storage.setString('cartList', json.encode(tempList));
     }
   }
-
+  // 过滤数据
   static formatCartData(item) {
     //处理图片
     String pic = item.pic;
@@ -94,5 +95,22 @@ class CartServices {
     //是否选中
     data['checked'] = true;
     return data;
+  }
+
+  // 获取购物车中选中的数据
+  static getCheckOutData() async {
+    List cartListData = [];
+    List tempCheckOutData = [];
+    try {
+      cartListData = json.decode(await Storage.getString('cartList'));
+    } catch (e) {
+      cartListData = [];
+    }
+    for (var i = 0; i < cartListData.length; i++) {
+      if (cartListData[i]["checked"] == true) {
+        tempCheckOutData.add(cartListData[i]);
+      }
+    }
+    return tempCheckOutData;
   }
 }
